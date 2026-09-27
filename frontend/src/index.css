@@ -1,0 +1,426 @@
+/* =========================================================
+   Tokens
+   ========================================================= */
+:root {
+  --paper: #eef1ea;
+  --surface: #ffffff;
+  --ink: #1e2a22;
+  --ink-soft: #56645b;
+  --line: #d8ded2;
+
+  --accent: #2f6f5e;     /* teal-pino — acciones primarias */
+  --accent-dark: #234f43;
+  --tag: #b8720a;        /* ocre — precios, resaltes */
+  --danger: #9a3b3b;
+  --ok: #2f6f5e;
+
+  --font-display: 'Lora', 'Georgia', serif;
+  --font-body: 'Work Sans', system-ui, sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgba(30, 42, 34, 0.06), 0 6px 16px rgba(30, 42, 34, 0.05);
+}
+
+/* =========================================================
+   Reset base
+   ========================================================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+
+p {
+  margin: 0 0 8px;
+  color: var(--ink-soft);
+}
+
+input, textarea, button {
+  font-family: inherit;
+  font-size: 14px;
+}
+
+a {
+  color: var(--accent-dark);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   Layout — pantalla de autenticación
+   ========================================================= */
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  padding: 48px 24px;
+}
+
+.auth-panel {
+  width: 320px;
+}
+
+/* =========================================================
+   Layout — aplicación principal
+   ========================================================= */
+.app-layout {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 28px 0 20px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 32px;
+}
+
+.app-header h1 {
+  font-size: 22px;
+  letter-spacing: 0.2px;
+}
+
+.app-header__usuario {
+  font-size: 14px;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.section-title {
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+
+.estado-vacio {
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+/* =========================================================
+   Tarjetas genéricas
+   ========================================================= */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+/* =========================================================
+   Formularios
+   ========================================================= */
+.form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form__title {
+  font-size: 19px;
+  margin-bottom: 6px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field span {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.field input,
+.field textarea {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  background: var(--paper);
+  color: var(--ink);
+  resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus {
+  background: var(--surface);
+  border-color: var(--accent);
+}
+
+.field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.field-row .field {
+  flex: 1;
+}
+
+.form__error {
+  color: var(--danger);
+  font-size: 13px;
+  margin: 0;
+}
+
+/* Formulario de producto: campos + previsualización de imagen lado a lado */
+.form__grid {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 20px;
+  align-items: start;
+}
+
+.form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preview-img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+}
+
+.preview-img--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-soft);
+  background: var(--paper);
+  padding: 8px;
+}
+
+@media (max-width: 560px) {
+  .form__grid {
+    grid-template-columns: 1fr;
+  }
+  .preview-img,
+  .preview-img--empty {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   Botones
+   ========================================================= */
+.btn {
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 10px 22px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.06s ease, background-color 0.15s ease;
+  align-self: flex-start;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+
+.btn--secondary {
+  background: transparent;
+  color: var(--accent-dark);
+  border: 1px solid var(--accent);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: rgba(47, 111, 94, 0.08);
+}
+
+/* =========================================================
+   Catálogo de productos
+   ========================================================= */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 18px;
+}
+
+.product-card {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card__img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  display: block;
+}
+
+.product-card__img--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--ink-soft);
+  background: var(--paper);
+}
+
+.product-card__body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product-card__nombre {
+  font-size: 15.5px;
+  margin: 0;
+}
+
+.product-card__desc {
+  font-size: 13px;
+  margin: 0;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.product-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.product-card__precio {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--tag);
+}
+
+/* =========================================================
+   Insignias (badges)
+   ========================================================= */
+.badge {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+}
+
+.badge--ok {
+  color: var(--ok);
+  border-color: rgba(47, 111, 94, 0.35);
+  background: rgba(47, 111, 94, 0.08);
+}
+
+.badge--agotado {
+  color: var(--danger);
+  border-color: rgba(154, 59, 59, 0.35);
+  background: rgba(154, 59, 59, 0.08);
+}
+
+.badge--rol {
+  background: rgba(184, 114, 10, 0.1);
+  border-color: rgba(184, 114, 10, 0.35);
+  color: var(--tag);
+}
+
+.badge--estado-pendiente { color: var(--tag); border-color: rgba(184, 114, 10, 0.35); background: rgba(184, 114, 10, 0.08); }
+.badge--estado-pagado    { color: var(--ok); border-color: rgba(47, 111, 94, 0.35); background: rgba(47, 111, 94, 0.08); }
+.badge--estado-enviado   { color: var(--accent-dark); border-color: rgba(47, 111, 94, 0.35); background: rgba(47, 111, 94, 0.08); }
+.badge--estado-cancelado { color: var(--danger); border-color: rgba(154, 59, 59, 0.35); background: rgba(154, 59, 59, 0.08); }
+
+/* =========================================================
+   Pedidos
+   ========================================================= */
+.order-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order-list__item {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.order-list__total {
+  margin-left: auto;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--tag);
+}
