@@ -9,7 +9,11 @@ class UsuarioController {
 
   registrar = async (req, res) => {
     try {
-      const usuario = await this.usuarioUseCases.registrar(req.body);
+      // El registro público SIEMPRE crea clientes: el rol del body se ignora para
+      // que nadie pueda hacerse administrador por su cuenta. Los administradores
+      // se asignan directo en la base de datos (ver README).
+      const { nombre, email, password } = req.body;
+      const usuario = await this.usuarioUseCases.registrar({ nombre, email, password, rol: 'cliente' });
       res.status(201).json(usuario.toPublicJSON());
     } catch (error) {
       res.status(400).json({ error: error.message });

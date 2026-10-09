@@ -46,6 +46,13 @@ class PgUsuarioRepository {
     return rows.map((r) => this._aEntidad(r));
   }
 
+  async listarPorRol(rol) {
+    const { rows } = await this.pool.query('SELECT * FROM usuarios WHERE rol = $1 ORDER BY id', [
+      rol,
+    ]);
+    return rows.map((r) => this._aEntidad(r));
+  }
+
   async actualizar(id, cambios) {
     const campos = [];
     const valores = [];

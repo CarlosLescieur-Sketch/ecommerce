@@ -6,7 +6,7 @@ Base URL: `http://localhost:3000/api`
 
 | Método | Ruta                  | Descripción                                   | Body / Params                                      | Respuesta                        |
 |--------|-----------------------|------------------------------------------------|-----------------------------------------------------|-----------------------------------|
-| POST   | `/usuarios/registro`  | Registra un nuevo usuario (hashea password)    | `{ nombre, email, password, rol? }`                 | 201 — Usuario (sin password)     |
+| POST   | `/usuarios/registro`  | Registra un cliente (hashea password; el rol siempre es `cliente`) | `{ nombre, email, password }`        | 201 — Usuario (sin password)     |
 | POST   | `/usuarios/login`     | Autentica credenciales                         | `{ email, password }`                                | 200 — Usuario (sin password)     |
 | GET    | `/usuarios`           | Lista todos los usuarios                       | —                                                     | 200 — Usuario[]                  |
 | GET    | `/usuarios/:id`       | Obtiene un usuario por id                      | —                                                     | 200 — Usuario                    |
@@ -40,8 +40,26 @@ webp, gif`; tamaño máximo 5 MB.
 | GET    | `/pedidos`                      | Lista todos los pedidos                                 | —                                                           | 200 — Pedido[]      |
 | GET    | `/pedidos/:id`                  | Obtiene un pedido por id (con items)                     | —                                                           | 200 — Pedido        |
 | GET    | `/pedidos/usuario/:usuarioId`   | Lista los pedidos de un usuario                          | —                                                           | 200 — Pedido[]      |
-| PATCH  | `/pedidos/:id/estado`           | Cambia el estado del pedido                              | `{ estado: "pendiente"\|"pagado"\|"enviado"\|"cancelado" }` | 200 — Pedido        |
+| PATCH  | `/pedidos/:id/estado`           | Cambia el estado del pedido (con reglas de transición)     | `{ estado: "pagado"\|"enviado"\|"cancelado" }` | 200 — Pedido; 404 si no existe; 400 si la transición no es válida |
 | DELETE | `/pedidos/:id`                  | Elimina un pedido                                        | —                                                           | 204 — Sin contenido  |
+
+Al crear un pedido se disparan dos notificaciones por correo (ver
+`05-subsistema-notificaciones.md`): al cliente con el desglose de la
+compra y los datos bancarios para completar el pago, y a los
+administradores con el aviso del nuevo pedido. Si el envío falla, el
+pedido se conserva igualmente.
+
+### Transiciones de estado
+
+El pedido se crea en `pendiente`. Las transiciones válidas son:
+
+- `pendiente` → `pagado` (procesar el pago) o `cancelado` (anular).
+- `pagado` → `enviado` (despachar) o `cancelado` (anular).
+- `enviado` y `cancelado` son estados finales: no admiten más cambios.
+
+Al cancelar un pedido, el stock de sus productos vuelve a la
+cantidad anterior (se deshace el descuento hecho al crear el
+pedido).
 
 ## Salud del servicio
 
@@ -57,3 +75,20 @@ webp, gif`; tamaño máximo 5 MB.
 - Recurso no encontrado devuelve `404`.
 - Ningún endpoint expone `password_hash`; el objeto Usuario serializado
   (`toPublicJSON()`) solo incluye `id`, `nombre`, `email`, `rol`.
+
+## Analíticas (`/api/analytics`) — solo administrador
+
+Todas las rutas exigen el header `x-usuario-id`; el backend consulta el rol real
+del usuario en la base de datos y responde `401` si falta o no es válido, y
+`403` si el usuario no es `administrador`. Todos los parámetros son opcionales
+y las fechas usan el formato `YYYY-MM-DD` (el día `hasta` queda incluido). Las
+métricas de ventas excluyen los pedidos cancelados; la distribución de estados
+sí los cuenta. Las agregaciones (SUM, COUNT, AVG, GROUP BY) se ejecutan en
+PostgreSQL.
+
+| Método | Ruta                          | Parámetros (query)                          | Respuesta                                                                 |
+|--------|-------------------------------|----------------------------------------------|----------------------------------------------------------------------------|
+| GET    | `/analytics/top-productos`    | `limite` (1-50, def. 10), `desde`, `hasta`   | `[{ productoId, nombre, unidadesVendidas, montoRecaudado }]`              |
+| GET    | `/analytics/ingresos`         | `agrupacion` (`day`/`week`/`month`), `desde`, `hasta` | `{ agrupacion, ingresosTotales, serie: [{ periodo, ingresos, pedidos }] }` |
+| GET    | `/analytics/estados`          | `desde`, `hasta`                             | `{ totalPedidos, distribucion: [{ estado, cantidad, porcentaje }] }`      |
+| GET    | `/analytics/ticket-promedio`  | `desde`, `hasta`                             | `{ ticketPromedioPedido, ticketPromedioUsuario, totalPedidos, ingresosTotales }` |

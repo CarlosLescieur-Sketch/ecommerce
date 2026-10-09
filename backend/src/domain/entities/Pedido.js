@@ -4,6 +4,15 @@
  */
 const ESTADOS_VALIDOS = ['pendiente', 'pagado', 'enviado', 'cancelado'];
 
+// Regla de negocio: transiciones permitidas entre estados.
+// Un pedido nace "pendiente"; "enviado" y "cancelado" son finales.
+const TRANSICIONES_VALIDAS = {
+  pendiente: ['pagado', 'cancelado'],
+  pagado: ['enviado', 'cancelado'],
+  enviado: [],
+  cancelado: [],
+};
+
 class Pedido {
   constructor({ id = null, usuarioId, items = [], estado = 'pendiente', total = 0 }) {
     if (!usuarioId) {
@@ -41,6 +50,11 @@ class Pedido {
   cambiarEstado(nuevoEstado) {
     if (!ESTADOS_VALIDOS.includes(nuevoEstado)) {
       throw new Error('Estado de pedido inválido');
+    }
+    if (!TRANSICIONES_VALIDAS[this.estado].includes(nuevoEstado)) {
+      throw new Error(
+        `No se puede pasar un pedido "${this.estado}" a "${nuevoEstado}"`
+      );
     }
     this.estado = nuevoEstado;
   }

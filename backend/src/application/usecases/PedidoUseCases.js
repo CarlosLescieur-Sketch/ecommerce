@@ -3,12 +3,14 @@ const Pedido = require('../../domain/entities/Pedido');
 /**
  * Orquesta la creación de pedidos: valida stock (regla de dominio de Producto),
  * congela precios unitarios y delega el cálculo de total a la entidad Pedido.
- * Depende de productoRepository y pedidoRepository, ambos inyectados.
+ * Depende de productoRepository, pedidoRepository y notificacionPedido
+ * (servicio de aplicación con sus propios puertos), todos inyectados.
  */
 class PedidoUseCases {
-  constructor({ pedidoRepository, productoRepository }) {
+  constructor({ pedidoRepository, productoRepository, notificacionPedido }) {
     this.pedidoRepository = pedidoRepository;
     this.productoRepository = productoRepository;
+    this.notificacionPedido = notificacionPedido;
   }
 
   async crear({ usuarioId, items }) {
@@ -40,7 +42,14 @@ class PedidoUseCases {
       await this.productoRepository.actualizarStock(producto.id, producto.stock);
     }
 
-    return this.pedidoRepository.crear(pedido);
+    const pedidoCreado = await this.pedidoRepository.crear(pedido);
+
+    // Dispara las notificaciones (correo al cliente con desglose y
+    // datos bancarios + aviso a los administradores). El servicio
+    // garantiza que nunca lanza: un fallo de correo no pierde el pedido.
+    await this.notificacionPedido.notificarPedidoCreado(pedidoCreado);
+
+    return pedidoCreado;
   }
 
   async obtenerPorId(id) {
@@ -58,6 +67,27 @@ class PedidoUseCases {
   }
 
   async actualizarEstado(id, estado) {
+    const pedido = await this.pedidoRepository.buscarPorId(id);
+    if (!pedido) {
+      throw new Error('Pedido no encontrado');
+    }
+
+    // La regla de transición (qué estados son alcanzables desde cuál)
+    // vive en el dominio; aquí solo se orquesta.
+    pedido.cambiarEstado(estado);
+
+    // Cancelar un pedido devuelve al catálogo el stock que se
+    // reservó al crearlo.
+    if (estado === 'cancelado') {
+      for (const item of pedido.items) {
+        const producto = await this.productoRepository.buscarPorId(item.productoId);
+        if (producto) {
+          producto.reponerStock(item.cantidad);
+          await this.productoRepository.actualizarStock(producto.id, producto.stock);
+        }
+      }
+    }
+
     return this.pedidoRepository.actualizarEstado(id, estado);
   }
 

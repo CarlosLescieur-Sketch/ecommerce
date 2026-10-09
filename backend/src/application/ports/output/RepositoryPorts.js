@@ -10,6 +10,7 @@
  *   buscarPorId(id) -> Usuario | null
  *   buscarPorEmail(email) -> Usuario | null
  *   listar() -> Usuario[]
+ *   listarPorRol(rol) -> Usuario[]
  *   actualizar(id, cambios) -> Usuario
  *   eliminar(id) -> boolean
  *

@@ -44,6 +44,10 @@ class PedidoController {
       const pedido = await this.pedidoUseCases.actualizarEstado(req.params.id, req.body.estado);
       res.status(200).json(pedido.toJSON());
     } catch (error) {
+      if (error.message === 'Pedido no encontrado') {
+        res.status(404).json({ error: error.message });
+        return;
+      }
       res.status(400).json({ error: error.message });
     }
   };

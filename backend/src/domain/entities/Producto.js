@@ -34,6 +34,14 @@ class Producto {
     this.stock -= cantidad;
   }
 
+  // Regla de negocio: reponer stock (ej. al cancelar un pedido).
+  reponerStock(cantidad) {
+    if (!Number.isInteger(cantidad) || cantidad <= 0) {
+      throw new Error('La cantidad a reponer debe ser un entero mayor a 0');
+    }
+    this.stock += cantidad;
+  }
+
   toJSON() {
     return {
       id: this.id,

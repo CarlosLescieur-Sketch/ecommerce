@@ -2,12 +2,19 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-const { usuarioController, productoController, pedidoController } = require('./container');
+const {
+  usuarioController,
+  productoController,
+  pedidoController,
+  analyticsController,
+  requireAdminMiddleware,
+} = require('./container');
 const { UPLOADS_DIR } = require('../adapters/input/http/middlewares/uploadMiddleware');
 
 const usuarioRoutes = require('../adapters/input/http/routes/usuarioRoutes');
 const productoRoutes = require('../adapters/input/http/routes/productoRoutes');
 const pedidoRoutes = require('../adapters/input/http/routes/pedidoRoutes');
+const analyticsRoutes = require('../adapters/input/http/routes/analyticsRoutes');
 
 const app = express();
 
@@ -20,6 +27,7 @@ app.use('/uploads', express.static(UPLOADS_DIR));
 app.use('/api/usuarios', usuarioRoutes(usuarioController));
 app.use('/api/productos', productoRoutes(productoController));
 app.use('/api/pedidos', pedidoRoutes(pedidoController));
+app.use('/api/analytics', analyticsRoutes(analyticsController, requireAdminMiddleware));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
